@@ -79,6 +79,19 @@ class _EnhanceScreenState extends State<EnhanceScreen> {
     widget.onSavePage(updatedPage);
   }
 
+  Future<void> _copyImage() async {
+    final targetPath = _enhancedPreviewPath ?? widget.page.croppedImagePath ?? widget.page.originalImagePath;
+    final success = await ImageProcessingService.copyImageToClipboard(targetPath);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? 'Đã sao chép ảnh vào bộ nhớ tạm (Clipboard)' : 'Không thể sao chép ảnh'),
+        backgroundColor: success ? const Color(0xFF0D9488) : Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _showAdjustmentsModal() {
     showModalBottomSheet(
       context: context,
@@ -221,6 +234,11 @@ class _EnhanceScreenState extends State<EnhanceScreen> {
         title: const Text('Bộ lọc & Tăng cường', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
         actions: [
           IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: 'Sao chép ảnh',
+            onPressed: _copyImage,
+          ),
+          IconButton(
             icon: const Icon(Icons.tune),
             tooltip: 'Tinh chỉnh chi tiết',
             onPressed: _showAdjustmentsModal,
@@ -336,22 +354,45 @@ class _EnhanceScreenState extends State<EnhanceScreen> {
                 ),
                 const SizedBox(height: 14),
 
-                // Save button
+                // Action buttons: Copy & Save
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0D9488),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 48,
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: const BorderSide(color: Color(0xFF14B8A6)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.copy_outlined, size: 20),
+                            label: const Text('Sao chép', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                            onPressed: _copyImage,
+                          ),
+                        ),
                       ),
-                      icon: const Icon(Icons.check_circle_outline),
-                      label: const Text('Lưu trang tài liệu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      onPressed: _saveFinal,
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: SizedBox(
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0D9488),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.check_circle_outline, size: 20),
+                            label: const Text('Lưu trang', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                            onPressed: _saveFinal,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],

@@ -64,6 +64,20 @@ class _DocumentViewScreenState extends State<DocumentViewScreen> {
     await PdfService.printDocument(_doc);
   }
 
+  Future<void> _copyCurrentPageImage() async {
+    if (_doc.pages.isEmpty) return;
+    final page = _doc.pages[_selectedPageIndex];
+    final success = await ImageProcessingService.copyImageToClipboard(page.displayPath);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? 'Đã sao chép ảnh trang ${page.pageNumber} vào clipboard' : 'Không thể sao chép ảnh'),
+        backgroundColor: success ? const Color(0xFF0D9488) : Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   void _showRenameDialog() {
     final controller = TextEditingController(text: _doc.name);
     final suggestions = SmartNamerService.generateSuggestions(
@@ -260,6 +274,11 @@ class _DocumentViewScreenState extends State<DocumentViewScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.copy_outlined),
+            tooltip: 'Sao chép ảnh trang này',
+            onPressed: _copyCurrentPageImage,
+          ),
+          IconButton(
             icon: const Icon(Icons.print_outlined),
             tooltip: 'In tài liệu',
             onPressed: _printDocument,
@@ -311,6 +330,11 @@ class _DocumentViewScreenState extends State<DocumentViewScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
+                      _buildToolbarButton(
+                        icon: Icons.copy_outlined,
+                        label: 'Sao chép',
+                        onTap: _copyCurrentPageImage,
+                      ),
                       _buildToolbarButton(
                         icon: Icons.crop,
                         label: 'Cắt góc',

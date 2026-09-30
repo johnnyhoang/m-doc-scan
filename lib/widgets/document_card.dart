@@ -7,6 +7,7 @@ class DocumentCard extends StatelessWidget {
   final DocumentItem document;
   final VoidCallback onTap;
   final VoidCallback onShare;
+  final VoidCallback onCopyImage;
   final VoidCallback onRename;
   final VoidCallback onDelete;
 
@@ -15,6 +16,7 @@ class DocumentCard extends StatelessWidget {
     required this.document,
     required this.onTap,
     required this.onShare,
+    required this.onCopyImage,
     required this.onRename,
     required this.onDelete,
   });
@@ -100,11 +102,22 @@ class DocumentCard extends StatelessWidget {
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (val) {
+                  if (val == 'copy') onCopyImage();
                   if (val == 'share') onShare();
                   if (val == 'rename') onRename();
                   if (val == 'delete') onDelete();
                 },
                 itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'copy',
+                    child: Row(
+                      children: [
+                        Icon(Icons.copy_outlined, size: 18, color: Color(0xFF14B8A6)),
+                        SizedBox(width: 10),
+                        Text('Sao chép ảnh bìa'),
+                      ],
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'share',
                     child: Row(

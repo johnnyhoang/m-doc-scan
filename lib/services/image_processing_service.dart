@@ -2,9 +2,24 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'package:pasteboard/pasteboard.dart';
 import '../models/document_model.dart';
 
 class ImageProcessingService {
+  /// Copy image to system clipboard
+  static Future<bool> copyImageToClipboard(String filePath) async {
+    try {
+      final file = File(filePath);
+      if (!await file.exists()) return false;
+      final bytes = await file.readAsBytes();
+      await Pasteboard.writeImage(bytes);
+      return true;
+    } catch (e) {
+      print('Error copying image to clipboard: $e');
+      return false;
+    }
+  }
+
   /// Loads image from file path
   static Future<img.Image?> loadImage(String filePath) async {
     try {

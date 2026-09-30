@@ -222,6 +222,20 @@ class _HomeScreenState extends State<HomeScreen> {
     await Share.shareXFiles([XFile(pdf.path)], text: doc.name);
   }
 
+  Future<void> _copyDocumentCoverImage(DocumentItem doc) async {
+    final thumb = doc.thumbnailPath;
+    if (thumb == null) return;
+    final success = await ImageProcessingService.copyImageToClipboard(thumb);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(success ? 'Đã sao chép ảnh bìa vào clipboard' : 'Không thể sao chép ảnh'),
+        backgroundColor: success ? const Color(0xFF0D9488) : Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -312,6 +326,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ).then((_) => _loadDocuments());
                             },
                             onShare: () => _shareDocument(doc),
+                            onCopyImage: () => _copyDocumentCoverImage(doc),
                             onRename: () => _renameDocument(doc),
                             onDelete: () => _deleteDocument(doc),
                           );
